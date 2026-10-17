@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Mini Atys</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud" class="hidden">
+	<div id="self-frame" class="frame">
+		<div class="frame-title"><span id="self-name">-</span> <span class="lvl">Lv <b id="self-level">1</b></span></div>
+		<div class="bar hp"><div id="bar-hp"></div><span id="txt-hp"></span></div>
+		<div class="bar sap"><div id="bar-sap"></div><span id="txt-sap"></span></div>
+		<div class="bar sta"><div id="bar-sta"></div><span id="txt-sta"></span></div>
+		<div class="frame-sub"><span id="self-dappers">0</span> dappers</div>
+	</div>
+
+	<div id="target-frame" class="frame hidden">
+		<div class="frame-title"><span id="target-name">-</span> <span class="lvl">Lv <b id="target-level">1</b></span></div>
+		<div class="bar hp"><div id="target-hp"></div><span id="target-hp-txt"></span></div>
+	</div>
+
+	<div id="info">
+		<div id="region">-</div>
+		<canvas id="minimap" width="176" height="176"></canvas>
+		<div id="netinfo"><span id="coords">0,0</span> · <span id="ping">-</span> ms</div>
+		<div class="info-buttons">
+			<button data-key="i">Bag (I)</button>
+			<button data-key="h">Help (H)</button>
+		</div>
+	</div>
+
+	<div id="bottom">
+		<div id="xpbar"><div id="xpfill"></div><span id="xptxt"></span></div>
+		<div id="actionbar"></div>
+	</div>
+
+	<div id="chat">
+		<div id="chatlog"></div>
+		<input id="chatinput" maxlength="200" placeholder="Enter to chat · /help" autocomplete="off">
+	</div>
+
+	<div id="toast"></div>
+
+	<div id="panel-bag" class="panel hidden">
+		<div class="panel-head">Inventory <button class="close" data-close="panel-bag">×</button></div>
+		<div id="bag-body"></div>
+	</div>
+
+	<div id="panel-shop" class="panel hidden">
+		<div class="panel-head"><span id="shop-title">Merchant</span> <button class="close" data-close="panel-shop">×</button></div>
+		<div id="shop-body"></div>
+	</div>
+
+	<div id="panel-dialog" class="panel hidden">
+		<div class="panel-head"><span id="dialog-title">-</span> <button class="close" data-close="panel-dialog">×</button></div>
+		<div id="dialog-body"></div>
+	</div>
+
+	<div id="panel-help" class="panel hidden">
+		<div class="panel-head">How to play <button class="close" data-close="panel-help">×</button></div>
+		<div class="help-body">
+			<p><kbd>W A S D</kbd> / arrows or <b>click</b> the ground to move.</p>
+			<p><b>Click</b> a creature to target and attack it. <kbd>Tab</kbd> targets the nearest one.</p>
+			<p><kbd>1</kbd> Attack · <kbd>2</kbd> Fire Bolt · <kbd>3</kbd> Heal · <kbd>4</kbd> Potion · <kbd>5</kbd> Sap Crystal</p>
+			<p><kbd>E</kbd> talk to a nearby NPC · <kbd>I</kbd> inventory · <kbd>Enter</kbd> chat · <kbd>Esc</kbd> clear target</p>
+			<p>Silan (center) is safe. Creatures get stronger the farther you go.
+			Name colors show difficulty: <span style="color:#9a9a9a">grey</span> &lt; <span style="color:#5fd35f">green</span> &lt;
+			<span style="color:#ffd84a">yellow</span> &lt; <span style="color:#ff9a3c">orange</span> &lt; <span style="color:#ff4a4a">red</span>.</p>
+			<p>Sell loot to <b>Merchant Lyna</b>, buy gear, group up with other homins and hunt the <b>Kirosta Matriarch</b> (lvl 30) in the far south-east.</p>
+		</div>
+	</div>
+
+	<div id="death" class="hidden">
+		<div class="death-box">
+			<h2>You have fallen</h2>
+			<p>The Karavan will bring you back to Silan.</p>
+			<button id="respawn-btn">Respawn</button>
+		</div>
+	</div>
+</div>
+
+<div id="login">
+	<form id="login-form" class="login-box">
+		<h1>Mini Atys</h1>
+		<p class="subtitle">A tiny MMORPG built on the ideas of Ryzom Core</p>
+		<input id="name" placeholder="Character name" maxlength="16" autocomplete="username" required>
+		<input id="pass" type="password" placeholder="Password" maxlength="64" autocomplete="current-password" required>
+		<button type="submit">Enter Atys</button>
+		<p id="login-msg">The first login with a new name creates your character.</p>
+	</form>
+</div>
+
+<script src="shared/rules.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

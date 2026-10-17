@@ -1,0 +1,122 @@
+:root {
+	--panel: rgba(16, 22, 18, 0.86);
+	--border: rgba(196, 170, 110, 0.55);
+	--text: #efe6cf;
+	--muted: #a99f86;
+	--gold: #e8b04a;
+	--hp: #c0392b;
+	--sap: #2f7fd1;
+	--sta: #d4a017;
+	--xp: #8e5bd6;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0f0c; color: var(--text);
+	font: 13px/1.35 "Segoe UI", system-ui, -apple-system, sans-serif; }
+canvas#game { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; cursor: crosshair; }
+.hidden { display: none !important; }
+button { font: inherit; color: var(--text); background: #3a3020; border: 1px solid var(--border); border-radius: 4px;
+	padding: 4px 10px; cursor: pointer; }
+button:hover { background: #4d3f28; }
+button:disabled { opacity: 0.45; cursor: default; }
+kbd { background: #2a2a22; border: 1px solid #555; border-radius: 3px; padding: 0 4px; font-size: 12px; }
+
+/* ---------------------------------------------------------------- login */
+#login { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+	background: radial-gradient(ellipse at center, rgba(30, 60, 30, 0.75), rgba(5, 8, 5, 0.97)); z-index: 50; padding: 16px; }
+.login-box { width: 100%; max-width: 340px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+	padding: 26px 24px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6); }
+.login-box h1 { margin: 0; text-align: center; font-size: 34px; letter-spacing: 2px; color: var(--gold);
+	font-family: Georgia, "Times New Roman", serif; text-shadow: 0 2px 8px rgba(232, 176, 74, 0.35); }
+.subtitle { margin: 0 0 8px; text-align: center; color: var(--muted); }
+.login-box input { font: inherit; padding: 9px 10px; border-radius: 5px; border: 1px solid #555; background: #10140f; color: var(--text); }
+.login-box button { padding: 10px; font-size: 15px; background: #6b4f1d; }
+#login-msg { margin: 4px 0 0; min-height: 18px; color: var(--muted); text-align: center; font-size: 12px; }
+#login-msg.error { color: #ff7a6b; }
+
+/* ------------------------------------------------------------------ hud */
+.frame { position: fixed; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; width: 230px; }
+#self-frame { top: 10px; left: 10px; }
+#target-frame { top: 10px; left: 50%; transform: translateX(-50%); }
+.frame-title { font-weight: 600; margin-bottom: 4px; display: flex; justify-content: space-between; }
+.frame-sub { color: var(--muted); font-size: 12px; margin-top: 3px; }
+.lvl { color: var(--muted); font-weight: 400; }
+.bar { position: relative; height: 15px; background: rgba(0, 0, 0, 0.55); border-radius: 3px; margin: 3px 0; overflow: hidden; }
+.bar > div { height: 100%; width: 100%; transition: width 0.15s; }
+.bar > span { position: absolute; inset: 0; text-align: center; font-size: 11px; line-height: 15px; text-shadow: 0 1px 2px #000; }
+.bar.hp > div { background: linear-gradient(#e0533f, var(--hp)); }
+.bar.sap > div { background: linear-gradient(#4f9be8, var(--sap)); }
+.bar.sta > div { background: linear-gradient(#ecc13a, var(--sta)); }
+
+#info { position: fixed; top: 10px; right: 10px; width: 188px; background: var(--panel); border: 1px solid var(--border);
+	border-radius: 6px; padding: 6px; text-align: center; }
+#region { font-weight: 600; color: var(--gold); margin-bottom: 4px; }
+#minimap { width: 176px; height: 176px; image-rendering: pixelated; border-radius: 4px; display: block; }
+#netinfo { color: var(--muted); font-size: 11px; margin-top: 3px; }
+.info-buttons { display: flex; gap: 4px; justify-content: center; margin-top: 4px; }
+.info-buttons button { font-size: 11px; padding: 2px 6px; }
+
+#bottom { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; }
+#xpbar { position: relative; width: 330px; max-width: calc(100vw - 32px); height: 9px; background: rgba(0, 0, 0, 0.6);
+	border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+#xpfill { height: 100%; background: linear-gradient(90deg, #6c3fb0, var(--xp)); width: 0; transition: width 0.3s; }
+#xptxt { position: absolute; inset: 0; font-size: 9px; line-height: 9px; text-align: center; text-shadow: 0 1px 1px #000; }
+#actionbar { display: flex; gap: 6px; }
+.slot { position: relative; width: 58px; height: 58px; background: var(--panel); border: 1px solid var(--border); border-radius: 7px;
+	display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; user-select: none; overflow: hidden; }
+.slot:hover { border-color: var(--gold); }
+.slot .key { position: absolute; top: 2px; left: 5px; font-size: 11px; color: var(--muted); }
+.slot .icon { font-size: 22px; line-height: 1; }
+.slot .label { font-size: 10px; color: var(--muted); margin-top: 3px; white-space: nowrap; }
+.slot .count { position: absolute; bottom: 2px; right: 5px; font-size: 11px; font-weight: 700; }
+.slot .cd { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.65); height: 0; }
+.slot.nores { filter: grayscale(0.8) brightness(0.7); }
+.slot.active { border-color: #ff6b4a; box-shadow: 0 0 8px rgba(255, 107, 74, 0.6) inset; }
+
+#chat { position: fixed; left: 10px; bottom: 10px; width: 340px; max-width: calc(100vw - 20px); }
+#chatlog { max-height: 180px; overflow-y: auto; background: rgba(10, 14, 10, 0.55); border-radius: 6px 6px 0 0; padding: 4px 6px;
+	font-size: 12px; scrollbar-width: thin; }
+#chatlog div { word-wrap: break-word; }
+#chatinput { width: 100%; font: inherit; font-size: 12px; padding: 5px 7px; background: rgba(10, 14, 10, 0.85); color: var(--text);
+	border: 1px solid var(--border); border-radius: 0 0 6px 6px; outline: none; }
+.ch-sys { color: #e8d48a; }
+.ch-world { color: #f0a868; }
+.ch-say { color: #ffffff; }
+.ch-emote { color: #f08fd0; font-style: italic; }
+.ch-loot { color: #79e07a; }
+.ch-err { color: #ff7a6b; }
+
+#toast { position: fixed; top: 30%; left: 50%; transform: translateX(-50%); font-size: 20px; font-weight: 700; color: var(--gold);
+	text-shadow: 0 2px 6px #000; pointer-events: none; opacity: 0; transition: opacity 0.3s; text-align: center; }
+#toast.show { opacity: 1; }
+#toast.err { color: #ff7a6b; font-size: 15px; }
+
+.panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 360px; max-width: calc(100vw - 32px);
+	max-height: 70vh; overflow-y: auto; background: rgba(16, 22, 18, 0.96); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); z-index: 20; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; font-weight: 700; color: var(--gold);
+	font-size: 15px; margin-bottom: 8px; }
+.close { padding: 0 8px; font-size: 16px; }
+.row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); gap: 8px; }
+.row .muted, .muted { color: var(--muted); font-size: 12px; }
+.section { margin: 10px 0 4px; color: var(--muted); text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+.help-body p { margin: 6px 0; }
+#dialog-body p { margin: 6px 0; font-style: italic; }
+#panel-bag, #panel-shop { top: 300px; left: auto; right: 10px; transform: none; width: 300px; max-height: calc(100vh - 400px); }
+
+#death { position: fixed; inset: 0; background: rgba(60, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 30; }
+.death-box { background: var(--panel); border: 1px solid #a33; border-radius: 10px; padding: 20px 30px; text-align: center; }
+.death-box h2 { margin: 0 0 6px; color: #ff6b5b; font-family: Georgia, serif; }
+.death-box button { margin-top: 10px; padding: 8px 18px; font-size: 15px; }
+
+@media (max-width: 760px) {
+	.frame { width: 170px; }
+	#target-frame { top: auto; bottom: 150px; }
+	#info { width: 118px; }
+	#minimap { width: 106px; height: 106px; }
+	#chat { width: 220px; bottom: 140px; }
+	#chatlog { max-height: 90px; }
+	.slot { width: 50px; height: 50px; }
+	.slot .label { display: none; }
+	#panel-bag, #panel-shop { top: 50%; left: 50%; right: auto; transform: translate(-50%, -50%); max-height: 60vh; }
+}

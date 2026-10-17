@@ -1,0 +1,17 @@
+{
+  "name": "mini-atys",
+  "version": "0.1.0",
+  "description": "A tiny browser MMORPG inspired by the Ryzom Core server architecture",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "main": "server/main.js",
+  "scripts": {
+    "start": "node server/main.js",
+    "dev": "node server/main.js --dev",
+    "test": "node --test test/*.test.js",
+    "bots": "node test/bots.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
