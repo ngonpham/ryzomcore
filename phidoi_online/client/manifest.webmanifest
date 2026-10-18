@@ -1,0 +1,16 @@
+{
+  "name": "Phi Đội Giấy Online · Đà Nẵng",
+  "short_name": "Phi Đội Online",
+  "description": "MMO không chiến máy bay giấy 3D trên bầu trời Đà Nẵng: cùng nhau giữ Cầu Rồng, Sơn Trà, Ngũ Hành Sơn, Hội An và hạ Mực Khổng Lồ.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#f4efe2",
+  "theme_color": "#f4efe2",
+  "categories": ["games"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

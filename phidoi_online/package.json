@@ -1,0 +1,17 @@
+{
+  "name": "phidoi-online",
+  "version": "0.1.0",
+  "description": "Phi Đội Giấy Online: a multiplayer paper-plane dogfight MMO over Đà Nẵng, built on PaperWorld's Phi Đội Giấy and the Ryzom Core service layout",
+  "private": true,
+  "type": "module",
+  "main": "server/main.js",
+  "scripts": {
+    "start": "node server/main.js",
+    "dev": "node server/main.js --dev",
+    "test": "node --test tests/*.test.js",
+    "bots": "node tests/bots.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
