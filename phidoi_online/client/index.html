@@ -220,7 +220,7 @@
       /* touch */
       #touch { display: none; position: absolute; inset: 0; pointer-events: none; }
       body.touch:not(.hidehud) #touch { display: block; }
-      body.studio #touch { display: none !important; }
+      body.studio #touch, body.studio #chat, body.studio #feed { display: none !important; }
       #stick { position: absolute; left: calc(26px + env(safe-area-inset-left)); bottom: 26px; width: 150px; height: 150px; border-radius: 50%; background: rgba(251, 248, 239, 0.55); border: 1.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); pointer-events: auto; touch-action: none; }
       #stick:before, #stick:after { content: ""; position: absolute; background: rgba(31, 29, 43, 0.25); }
       #stick:before { left: 50%; top: 12px; bottom: 12px; width: 1px; }
@@ -3732,6 +3732,17 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       function updateFlight(dt, t) {
         updateWind(t);
         const C = F.c;
+        // director mode (tools/film.js): the plane follows a scripted path [x, y, z, psi, gam, phi, v]
+        const DP = game.director && game.director.pose;
+        if (DP) {
+          F.pos.set(DP[0], DP[1], DP[2]);
+          F.psi = DP[3]; F.gam = DP[4]; F.phi = DP[5]; F.v = DP[6];
+          F.mode = "fly"; F.trick = null; F.n = 1 / Math.max(0.3, Math.cos(DP[5]));
+          if (C.heli) { fwd(F.psi, 0, F.hv).multiplyScalar(F.v); F.vy = 0; }
+          F.agl = F.pos.y - surfaceAt(F.pos.x, F.pos.z);
+          updateModel(dt, t);
+          return;
+        }
         if (F.mode === "crash") { updateCrash(dt); return; }
         let lift = airLift(F.pos.x, F.pos.y, F.pos.z, t);
         // turbulence: stronger at thermal edges and in clouds
@@ -4883,9 +4894,20 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       }
 
       /* ---------- other pilots ---------- */
+      // Object3D.clone() copies userData through JSON, which turns the rotor/prop/flame
+      // references into plain objects: map them onto the cloned parts instead.
+      function cloneModel(src) {
+        const g = src.clone(true), a = [], b = [];
+        src.traverse((o) => a.push(o));
+        g.traverse((o) => b.push(o));
+        const map = new Map(a.map((o, i) => [o, b[i]]));
+        g.userData = {};
+        for (const [k, v] of Object.entries(src.userData)) g.userData[k] = v && v.isObject3D ? map.get(v) : v;
+        return g;
+      }
       function setRemoteCraft(R, c) {
         if (R.g) scene.remove(R.g);
-        const g = (MODELS[c] || MODELS.jet).clone(true);
+        const g = cloneModel(MODELS[c] || MODELS.jet);
         g.visible = true;
         g.scale.setScalar(1);
         g.rotation.set(0, 0, 0);
@@ -5443,6 +5465,19 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         return (2 * Math.atan(Math.tan(h / 2) / a) * 180) / Math.PI;
       }
       function updateCamera(dt) {
+        // director mode: a scripted camera [x, y, z, lookX, lookY, lookZ, fov]
+        const DC = game.director && game.director.cam;
+        if (DC) {
+          camera.position.set(DC[0], DC[1], DC[2]);
+          camera.up.set(0, 1, 0);
+          camera.lookAt(DC[3], DC[4], DC[5]);
+          camera.fov = fitFov(DC[6] || 55);
+          camera.near = clamp((DC[1] - Math.max(surfaceAt(DC[0], DC[2]), obstacleTop(DC[0], DC[2], 2))) * 0.02, 0.4, 4);
+          camera.updateProjectionMatrix();
+          post.uniforms.uNear.value = camera.near;
+          game.mist = 0;
+          return;
+        }
         const C = F.c, p = F.g.position, z = game.zoom * (IS_TOUCH ? 0.85 : 1);
         if (!game.dragging) { game.dragYaw = damp(game.dragYaw, 0, 1.4, dt); game.dragPitch = damp(game.dragPitch, 0, 1.4, dt); }
         fwd(F.psi, F.gam, _cf);

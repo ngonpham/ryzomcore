@@ -118,6 +118,28 @@ frontend.js ── players.js ── combat.js ── enemies.js ── events.j
   - Không có lần sửa vị trí nhầm nào.
   - Băng thông ~34 KB/s mỗi client trong trường hợp xấu nhất, khi cả 100 máy bay chen nhau một chỗ.
 
+## Quay video quảng bá
+
+`tools/film.js` dựng video 30 giây với 4 phi công thật (Linh, Quân, Mai, Tuấn) đăng nhập vào cùng một shard. Video gồm 7 cảnh:
+
+1. Biển Mỹ Khê lúc bình minh
+2. Tượng Quan Âm chùa Linh Ứng, Sơn Trà
+3. Cầu Vàng, Bà Nà
+4. Ngũ Hành Sơn
+5. Cầu Rồng lúc hoàng hôn
+6. Phố cổ Hội An lên đèn
+7. Trận đánh world boss Mực Khổng Lồ có hiện HUD, kết bằng màn hình giới thiệu game
+
+```bash
+PLAYWRIGHT=/đường/dẫn/playwright node tools/film.js --out promo.mp4   # 1920×1080, 30 fps (cần ffmpeg)
+node tools/film.js --stills --only sontra,bana                         # vài khung mẫu mỗi cảnh, để chỉnh bố cục
+```
+
+Cách công cụ hoạt động:
+- **Đồng hồ ảo.** Server chạy ngay trong tiến trình của công cụ. Mỗi khung hình, nó bước server thêm đúng 1/30 giây, rồi bước 4 trình duyệt cùng nhịp (`requestAnimationFrame` và `performance.now` đều chạy theo đồng hồ ảo). Vì vậy video vẫn mượt dù máy render chậm, kể cả chỉ có CPU.
+- **Chế độ đạo diễn.** Kịch bản chỉ điều khiển đường bay (`game.director.pose`) và camera (`game.director.cam`). Còn lại đều là game thật: mạng, nội suy máy bay của người khác, đạn, sự kiện world boss, chat.
+- **Chạy khi không có internet.** Đặt `THREE_JS` và `FONTS_DIR` để phục vụ three.js và Google Fonts từ ổ đĩa.
+
 ## Giới hạn và hướng tiếp theo
 
 - Toàn bộ shard chạy trong một process. Muốn mở rộng thì tách frontend ra nhiều process, như Ryzom.
