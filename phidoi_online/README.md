@@ -131,13 +131,15 @@ frontend.js ── players.js ── combat.js ── enemies.js ── events.j
 7. Trận đánh world boss Mực Khổng Lồ có hiện HUD, kết bằng màn hình giới thiệu game
 
 ```bash
-PLAYWRIGHT=/đường/dẫn/playwright node tools/film.js --out promo.mp4   # 1920×1080, 30 fps (cần ffmpeg)
+PLAYWRIGHT=/đường/dẫn/playwright node tools/film.js --out promo.mp4   # 1920×1080, 30 fps, có nhạc (cần ffmpeg)
 node tools/film.js --stills --only sontra,bana                         # vài khung mẫu mỗi cảnh, để chỉnh bố cục
+node tools/soundtrack.js --video promo-silent.mp4 --out promo.mp4      # chỉ dựng lại phần âm thanh (vài giây)
 ```
 
 Cách công cụ hoạt động:
 - **Đồng hồ ảo.** Server chạy ngay trong tiến trình của công cụ. Mỗi khung hình, nó bước server thêm đúng 1/30 giây, rồi bước 4 trình duyệt cùng nhịp (`requestAnimationFrame` và `performance.now` đều chạy theo đồng hồ ảo). Vì vậy video vẫn mượt dù máy render chậm, kể cả chỉ có CPU.
 - **Chế độ đạo diễn.** Kịch bản chỉ điều khiển đường bay (`game.director.pose`) và camera (`game.director.cam`). Còn lại đều là game thật: mạng, nội suy máy bay của người khác, đạn, sự kiện world boss, chat.
+- **Nhạc và âm thanh tự tổng hợp.** `tools/soundtrack.js` tổng hợp toàn bộ bằng JavaScript, không dùng file mẫu (sample) nào, nên không vướng bản quyền. Nhạc nền viết trên thang ngũ cung Rê, phối đàn tranh (Karplus-Strong), sáo trúc, pad và trống. Nhịp 114 BPM được tính để mỗi lần chuyển cảnh rơi đúng vạch nhịp. Âm thanh hiệu ứng đọc lại đúng kịch bản quay: tiếng động cơ từng máy bay theo khoảng cách tới camera (có Doppler và pan trái-phải), không khí riêng từng cảnh (sóng, gió, chuông chùa, chim, phố, nước), tiếng súng và nổ khớp từng nhịp trận boss. Bản mix master ở −14 LUFS. Dùng `--silent` nếu muốn xuất video không tiếng.
 - **Chạy khi không có internet.** Đặt `THREE_JS` và `FONTS_DIR` để phục vụ three.js và Google Fonts từ ổ đĩa.
 
 ## Giới hạn và hướng tiếp theo

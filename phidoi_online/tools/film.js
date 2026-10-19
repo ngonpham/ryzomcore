@@ -9,10 +9,10 @@
 // shots, the camera (game.director.cam).
 //
 // Usage:
-//   PLAYWRIGHT=/path/to/playwright node tools/film.js [--out promo.mp4] [--preview] [--only name]
+//   PLAYWRIGHT=/path/to/playwright node tools/film.js [--out promo.mp4] [--preview] [--only name] [--silent]
 // Optional: THREE_JS=/path/three.module.js and FONTS_DIR=/dir (fonts.css + files/<md5>.woff2)
 // to serve three.js and Google Fonts locally when the browser has no internet access.
-// Needs ffmpeg on PATH to encode the frames.
+// Needs ffmpeg on PATH to encode the frames; the full cut gets tools/soundtrack.js mixed in.
 
 import fs from 'fs';
 import os from 'os';
@@ -20,6 +20,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { execFileSync } from 'child_process';
 import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
 
 import { createShard } from '../server/main.js';
 import { updatePlayers, refreshStats, teleport } from '../server/players.js';
@@ -28,13 +29,13 @@ import { updateBullets, updateEnemyMissiles, updateCrates, killEnemy } from '../
 import { gridH, coastX, SEA_Y } from '../shared/geo.js';
 
 const require = createRequire(import.meta.url);
-const { chromium } = require(process.env.PLAYWRIGHT || 'playwright');
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i < 0 ? d : args[i + 1]; };
 const STILLS = args.includes('--stills'); // 3 sample frames per shot, short warm-up: for framing
 const PREVIEW = args.includes('--preview') || STILLS;
 const ONLY = opt('--only', null) ? opt('--only').split(',') : null;
+const SILENT = args.includes('--silent') || !!ONLY; // the soundtrack is timed to the full cut
 const OUT = path.resolve(opt('--out', PREVIEW ? 'film-preview' : 'phidoi-danang-promo.mp4'));
 const FPS = 30, DT = 1 / FPS, WARM = Math.round(1.5 * FPS);
 const VIEW = { width: 1280, height: 720, scale: PREVIEW ? 0.5 : 1.5 }; // 1920×1080 output, same layout in previews
@@ -233,6 +234,7 @@ function clientFrame(a) {
 /* ------------------------------------------------------------------ main */
 
 async function main() {
+	const { chromium } = require(process.env.PLAYWRIGHT || 'playwright');
 	const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phidoi-film-'));
 	const frames = PREVIEW ? OUT : fs.mkdtempSync(path.join(os.tmpdir(), 'phidoi-frames-'));
 	fs.mkdirSync(frames, { recursive: true });
@@ -340,8 +342,15 @@ async function main() {
 	await new Promise((r) => shard.server.close(r));
 	if (!PREVIEW) {
 		console.log('[film] encoding ' + n + ' frames → ' + OUT);
+		const video = SILENT ? OUT : path.join(frames, 'silent.mp4');
 		execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(frames, '%05d.jpg'),
-			'-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', OUT]);
+			'-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', video]);
+		if (!SILENT) {
+			console.log('[film] mixing the soundtrack');
+			// imported lazily: soundtrack.js itself imports the shot list from this module
+			const { addSoundtrack } = await import('./soundtrack.js');
+			addSoundtrack(video, OUT, path.join(frames, 'soundtrack.wav'));
+		}
 		fs.rmSync(frames, { recursive: true, force: true });
 	}
 	fs.rmSync(dataDir, { recursive: true, force: true });
@@ -349,4 +358,7 @@ async function main() {
 	process.exit(0);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+// tools/soundtrack.js reuses the shot list to place engines, cuts and hits in time.
+export { SHOTS, SLOTS, FPS, poseOf, slotPose };
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main().catch((e) => { console.error(e); process.exit(1); });
